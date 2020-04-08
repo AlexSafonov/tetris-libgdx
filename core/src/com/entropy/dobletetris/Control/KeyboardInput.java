@@ -4,7 +4,10 @@ import com.badlogic.gdx.*;
 
 public class KeyboardInput extends InputAdapter {
 
-    private boolean up, down, left, right;
+    private boolean up;
+    private boolean down;
+    private boolean left;
+    private boolean right;
 
 
     @Override
@@ -12,18 +15,21 @@ public class KeyboardInput extends InputAdapter {
 
         switch (keycode) // switch code base on the variable keycode
         {
-            case Input.Keys.LEFT:  	// if keycode is the same as Keys.LEFT a.k.a 21
-                left = true;	// do this
-                return true;	// we have reacted to a keypress so stop checking for more
-            case Input.Keys.RIGHT: 	// if keycode is the same as Keys.LEFT a.k.a 22
-                right = true;	// do this
-                return true;	// we have reacted to a keypress so stop checking for more
-            case Input.Keys.UP: 		// if keycode is the same as Keys.LEFT a.k.a 19
-                up = true;		// do this
-                return true;	// we have reacted to a keypress so stop checking for more
-            case Input.Keys.DOWN: 	// if keycode is the same as Keys.LEFT a.k.a 20
-                down = true;	// do this
-                return true;	// we have reacted to a keypress so stop checking for more
+            case Input.Keys.LEFT:
+                left = true;
+                return true;
+            case Input.Keys.RIGHT:
+                right = true;
+                return true;
+            case Input.Keys.UP:
+                up = true;
+                return true;
+            case Input.Keys.DOWN:
+                down = true;
+                return true;
+            case Input.Keys.ESCAPE:
+                pause = true;
+                return true;
         }
         return false;
     }
@@ -31,15 +37,27 @@ public class KeyboardInput extends InputAdapter {
     @Override
     public boolean keyUp(int keycode) {
         boolean keyProcessed = false;
-        switch (keycode) // switch code base on the variable keycode
+        switch (keycode)
         {
-            case Input.Keys.LEFT:  	// if keycode is the same as Keys.LEFT a.k.a 21
-                left = false;	// do this
-                keyProcessed = true;	// we have reacted to a keypress
+            case Input.Keys.LEFT:
+                left = false;
+                keyProcessed = true;
                 break;
-            case Input.Keys.RIGHT: 	// if keycode is the same as Keys.LEFT a.k.a 22
-                right = false;	// do this
-                keyProcessed = true;	// we have reacted to a keypress
+            case Input.Keys.RIGHT:
+                right = false;
+                keyProcessed = true;
+                break;
+            case Input.Keys.UP:
+                up = false;
+                keyProcessed = true;
+                break;
+            case Input.Keys.DOWN:
+                down = false;
+                keyProcessed = true;
+                break;
+            case Input.Keys.ESCAPE:
+                pause = false;
+                keyProcessed = true;
                 break;
         }
         return keyProcessed;	//  return our peyProcessed flag
@@ -74,15 +92,18 @@ public class KeyboardInput extends InputAdapter {
         return left;
     }
 
-    public void setLeft(boolean left) {
-        this.left = left;
-    }
 
     public boolean isRight() {
         return right;
     }
 
-    public void setRight(boolean right) {
-        this.right = right;
+    public boolean isPause() {
+        return pause;
     }
+
+    public void setPause(boolean pause) {
+        this.pause = pause;
+    }
+
+    private boolean pause;
 }

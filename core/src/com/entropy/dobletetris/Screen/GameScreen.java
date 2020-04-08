@@ -11,9 +11,10 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.entropy.dobletetris.Control.KeyboardInput;
 import com.entropy.dobletetris.Service.PieceFactory;
+import com.entropy.dobletetris.Service.ScreenManager;
 import com.entropy.dobletetris.model.Block;
 import com.entropy.dobletetris.model.Board;
-import com.entropy.dobletetris.model.Constants;
+import com.entropy.dobletetris.Utils.Constants;
 import com.entropy.dobletetris.model.Piece;
 
 public class GameScreen extends ScreenAdapter {
@@ -27,14 +28,15 @@ public class GameScreen extends ScreenAdapter {
     private Piece currentPiece;
     private Piece futurePiece;
 
-    private float levelSpeed = 1f; // global level speed
-    private float currentDropSpeed = levelSpeed; // store current drop speed of a piece
-    private float timer = currentDropSpeed;
+    private float levelSpeed; // global level speed
+    private float currentDropSpeed; // store current drop speed of a piece
+    private float timer;
 
-    private float strafeSpeed = 0.075f;
+    private float strafeSpeed;
     private float strafeSpeedTimer = strafeSpeed;
 
-    private boolean gameOver = false;
+    private boolean gameOver;
+    private boolean paused;
 
     private PieceFactory pieceFactory;
 
@@ -42,10 +44,11 @@ public class GameScreen extends ScreenAdapter {
     private final Vector2 START_POSITION = new Vector2(Constants.CELL_SIZE * 4f, Constants.CELL_SIZE * 20f);
     private final Vector2 SHOW_POSITION = new Vector2(Constants.CELL_SIZE * 12.4f, Constants.CELL_SIZE * 15.7f);
 
+    private ScreenManager screenManager;
 
-    @Override
-    public void show() {
 
+    public GameScreen(ScreenManager screenManager){
+        this.screenManager = screenManager;
         Gdx.input.setInputProcessor(controller);
 
         batch = new SpriteBatch();
@@ -61,7 +64,39 @@ public class GameScreen extends ScreenAdapter {
         futurePiece = pieceFactory.createRandomPiece(SHOW_POSITION.x, SHOW_POSITION.y,  Constants.CELL_SIZE, board.getBlocksOnBoard(), Constants.GAME_FIELD_WIDTH);
         currentPiece =  pieceFactory.createRandomPiece(START_POSITION.x, START_POSITION.y, Constants.CELL_SIZE, board.getBlocksOnBoard(), Constants.GAME_FIELD_WIDTH);
         currentPiece.startMoving(START_POSITION.x, START_POSITION.y);
+
+        levelSpeed = 1f;
+        currentDropSpeed = levelSpeed;
+        timer = currentDropSpeed;
+        strafeSpeed = 0.08f;
+
     }
+
+
+    @Override
+    public void show() {
+        camera.update();
+
+    }
+
+    // should not call pause or resume yourself, those are methods called by the framework in specific situations -- from framework docs
+    //So we make our  custom
+    public void pauseGame(){
+        if(controller.isPause()){
+            paused = true;
+            controller.setPause(false);
+            screenManager.pauseGame();
+        }
+    }
+
+    @Override
+    public void resume(){
+        super.resume();
+        Gdx.input.setInputProcessor(controller);
+        timer = currentDropSpeed;
+        paused = false;
+    }
+
 
     private void addBlocksToBoard(){
         board.getBlocksOnBoard().addAll(currentPiece.getBlocksInPiece());
@@ -69,8 +104,12 @@ public class GameScreen extends ScreenAdapter {
 
     private void checkGameOver (){
         for(Block block: board.getBlocksOnBoard()){
-            if(block.getY() == START_POSITION.y && block.getX() == START_POSITION.x)
+            if(block.getY() >= START_POSITION.y-Constants.CELL_SIZE ){
                 gameOver = true;
+                screenManager.gameOver();
+            }
+
+
         }
     }
 
@@ -83,6 +122,7 @@ public class GameScreen extends ScreenAdapter {
     }
     private void drop(){
         currentDropSpeed = 0.005f;
+        timer = currentDropSpeed;
     }
 
     private void increaseSpeed(){
@@ -128,8 +168,10 @@ public class GameScreen extends ScreenAdapter {
         currentPiece.render(delta,batch);
         futurePiece.render(delta,batch);
 
+        pauseGame();
         checkGameOver();
-        if(!gameOver) {
+
+        if(!gameOver && !paused) {
             timer -= delta;
             moveCurrentPiece(delta);
             if (timer <= 0) {

@@ -1,0 +1,27 @@
+
+board.png
+size: 2048,4096
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+001
+  rotate: false
+  xy: 2, 2
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+002
+  rotate: false
+  xy: 1804, 2204
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+boardBackGround
+  rotate: false
+  xy: 2, 204
+  size: 1800, 2200
+  orig: 1800, 2200
+  offset: 0, 0
+  index: -1
